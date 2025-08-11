@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "293207957971",
+    "project_id": "ecomiles-99254",
+    "storage_bucket": "ecomiles-99254.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:293207957971:android:c47fac1092f94fcacc4f26",
+        "android_client_info": {
+          "package_name": "com.example.ecomiles"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAoZFLxOpsIekblgQm7zauwJMj9cZ2HM-E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
