@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:math';
 import 'package:EcoMiles/components/loadingOverlay.dart';
 import 'package:flutter/material.dart';
@@ -8,6 +9,8 @@ import 'package:flutter_google_places_sdk/flutter_google_places_sdk.dart'
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
+import 'package:http/http.dart' as http;
+
 // import 'package:google_place/google_place.dart';
 
 class MapProvider extends ChangeNotifier {
@@ -19,9 +22,11 @@ class MapProvider extends ChangeNotifier {
   static const LatLng _pIndia = LatLng(20.5937, 78.9629);
   LatLng? _currentP = null;
   final LatLng _pointA = LatLng(18.5204, 73.8567);
-  LatLng? _destinationP = LatLng(15.400399, 74.005508);
+  // LatLng? _destinationP = LatLng(15.400399, 74.005508);
+  LatLng? _destinationP = null;
   MapType mapType = MapType.normal;
   List _predictionsResponse = [];
+  bool _showCancelRoute = false;
   List get predictionsResponse => _predictionsResponse;
   LatLng? get currentLocation => _currentP;
   LatLng? get destinationLocation => _destinationP;
@@ -31,6 +36,7 @@ class MapProvider extends ChangeNotifier {
   TextEditingController? _searchController = TextEditingController();
   LatLng get pointA => _pointA;
   LatLng get pointB => _destinationP!;
+  bool get showCancelRoute => _showCancelRoute;
 
   Map<PolylineId, Polyline> polylines = {};
   Set<Marker> _markers = {};
@@ -258,20 +264,20 @@ class MapProvider extends ChangeNotifier {
     });
   }
 
-  addMarker() {
-    //  sourcePosition = Marker(
-    //     markerId: MarkerId('source'),
-    //     position: _currentP!,
-    //     icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure),
-    //   );
+  // addMarker() {
+  //   //  sourcePosition = Marker(
+  //   //     markerId: MarkerId('source'),
+  //   //     position: _currentP!,
+  //   //     icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure),
+  //   //   );
 
-    destinationPosition = Marker(
-      markerId: MarkerId('destination'),
-      position: LatLng(_destinationP!.latitude, _destinationP!.longitude),
-      icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure),
-    );
-    notifyListeners();
-  }
+  //   destinationPosition = Marker(
+  //     markerId: MarkerId('destination'),
+  //     position: LatLng(_destinationP!.latitude, _destinationP!.longitude),
+  //     icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure),
+  //   );
+  //   notifyListeners();
+  // }
 
   // Future<void> getDirections() async {
   //   bool serviceEnabled = await _locationController.serviceEnabled();
@@ -302,6 +308,34 @@ class MapProvider extends ChangeNotifier {
   //     });
   //   }
   // }
+  Future<void> selectPlace(String placeName) async {
+    String apiKey = dotenv.env['GOOGLE_MAPS_API_KEY']!;
+    final url = Uri.parse(
+      'https://maps.googleapis.com/maps/api/place/findplacefromtext/json'
+      '?input=${Uri.encodeComponent(placeName)}'
+      '&inputtype=textquery'
+      '&fields=geometry'
+      '&key=$apiKey',
+    );
+    final response = await http.get(url);
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+
+      if (data['status'] == "OK") {
+        print(data);
+        final location = LatLng(
+          data['candidates'][0]['geometry']['location']['lat'],
+          data['candidates'][0]['geometry']['location']['lng'],
+        );
+        _destinationP = location;
+
+        // addMarker();
+        await getDirectionsToPlot(_destinationP!);
+        notifyListeners();
+      }
+    }
+  }
+
   Future<void> getDirections(LatLng dst) async {
     // Step 1: Make sure location is available
     try {
@@ -326,49 +360,49 @@ class MapProvider extends ChangeNotifier {
       );
       // print("HI");
       if (result.points.isNotEmpty) {
-        // final List<LatLng> polylineCoordinates = result.points
-        //     .map((point) => LatLng(point.latitude, point.longitude))
-        //     .toList();
-        List<LatLng> polylineCoordinates = [
-          LatLng(28.4556545, 77.0453846),
-          LatLng(28.457069, 77.0467425),
-          LatLng(28.4588032, 77.0480546),
-          LatLng(28.4601935, 77.0493957),
-          LatLng(28.4613966, 77.0505517),
-          LatLng(28.4621721, 77.0512426),
-          LatLng(28.4624519, 77.0515201),
-          LatLng(28.4652525, 77.0542935),
-          LatLng(28.466951, 77.0556489),
-          LatLng(28.4678528, 77.0562961),
-          LatLng(28.4688056, 77.0572826),
-          LatLng(28.4679847, 77.0570698),
-          LatLng(28.4651349, 77.0549357),
-          LatLng(28.461291, 77.0512648),
-          LatLng(28.4605629, 77.0505601),
-          LatLng(28.4603835, 77.0503867),
-          LatLng(28.4602685, 77.0502706),
-          LatLng(28.4596605, 77.0501843),
-          LatLng(28.4574251, 77.0526913),
-          LatLng(28.4570758, 77.0532523),
-          LatLng(28.4558367, 77.0559917),
-          LatLng(28.4553479, 77.0566226),
-          LatLng(28.4553251, 77.056652),
-          LatLng(28.4543087, 77.0580256),
-          LatLng(28.4522801, 77.0607981),
-          LatLng(28.4502381, 77.063531),
-          LatLng(28.450273, 77.0641939),
-          LatLng(28.4524901, 77.0663441),
-          LatLng(28.4525408, 77.0663916),
-          LatLng(28.4524511, 77.0665035),
-          LatLng(28.4521467, 77.0668909),
-          LatLng(28.4517572, 77.0674019),
-          LatLng(28.4502022, 77.0694702),
-          LatLng(28.4501646, 77.0694334),
-          LatLng(28.4520059, 77.0669857),
-          LatLng(28.4520165, 77.0666582),
-          LatLng(28.4520233, 77.0665073),
-          LatLng(28.4516402, 77.0661221),
-        ];
+        final List<LatLng> polylineCoordinates = result.points
+            .map((point) => LatLng(point.latitude, point.longitude))
+            .toList();
+        // List<LatLng> polylineCoordinates = [
+        //   LatLng(28.4556545, 77.0453846),
+        //   LatLng(28.457069, 77.0467425),
+        //   LatLng(28.4588032, 77.0480546),
+        //   LatLng(28.4601935, 77.0493957),
+        //   LatLng(28.4613966, 77.0505517),
+        //   LatLng(28.4621721, 77.0512426),
+        //   LatLng(28.4624519, 77.0515201),
+        //   LatLng(28.4652525, 77.0542935),
+        //   LatLng(28.466951, 77.0556489),
+        //   LatLng(28.4678528, 77.0562961),
+        //   LatLng(28.4688056, 77.0572826),
+        //   LatLng(28.4679847, 77.0570698),
+        //   LatLng(28.4651349, 77.0549357),
+        //   LatLng(28.461291, 77.0512648),
+        //   LatLng(28.4605629, 77.0505601),
+        //   LatLng(28.4603835, 77.0503867),
+        //   LatLng(28.4602685, 77.0502706),
+        //   LatLng(28.4596605, 77.0501843),
+        //   LatLng(28.4574251, 77.0526913),
+        //   LatLng(28.4570758, 77.0532523),
+        //   LatLng(28.4558367, 77.0559917),
+        //   LatLng(28.4553479, 77.0566226),
+        //   LatLng(28.4553251, 77.056652),
+        //   LatLng(28.4543087, 77.0580256),
+        //   LatLng(28.4522801, 77.0607981),
+        //   LatLng(28.4502381, 77.063531),
+        //   LatLng(28.450273, 77.0641939),
+        //   LatLng(28.4524901, 77.0663441),
+        //   LatLng(28.4525408, 77.0663916),
+        //   LatLng(28.4524511, 77.0665035),
+        //   LatLng(28.4521467, 77.0668909),
+        //   LatLng(28.4517572, 77.0674019),
+        //   LatLng(28.4502022, 77.0694702),
+        //   LatLng(28.4501646, 77.0694334),
+        //   LatLng(28.4520059, 77.0669857),
+        //   LatLng(28.4520165, 77.0666582),
+        //   LatLng(28.4520233, 77.0665073),
+        //   LatLng(28.4516402, 77.0661221),
+        // ];
 
         PolylineId id = PolylineId("route");
         Polyline polyline = Polyline(
@@ -392,7 +426,17 @@ class MapProvider extends ChangeNotifier {
             ),
           ),
         );
-
+        // _mapController!.animateCamera(
+        //   CameraUpdate.newCameraPosition(
+        //     CameraPosition(
+        //       target: LatLng(
+        //         (_destinationP!.latitude + _currentP!.latitude) / 2,
+        //         (_destinationP!.longitude + _currentP!.longitude) / 2,
+        //       ),
+        //       zoom: 15,
+        //     ),
+        //   ),
+        // );
         notifyListeners();
       } else {
         print("No route found: ${result.errorMessage}");
@@ -402,58 +446,119 @@ class MapProvider extends ChangeNotifier {
     }
   }
 
-  // getNavigation() async {
-  //   _locationController.changeSettings(accuracy: LocationAccuracy.high);
-  //   bool serviceEnabled = await _locationController.serviceEnabled();
-  //   if (!serviceEnabled) {
-  //     serviceEnabled = await _locationController.requestService();
-  //     if (!serviceEnabled) return;
-  //   }
+  Future<void> getDirectionsToPlot(LatLng dst) async {
+    // Step 1: Make sure location is available
+    try {
+      // if (_currentP == null) await getCurrentLocation();
+      if (_currentP == null || _destinationP == null) return;
 
-  //   PermissionStatus permissionGranted = await _locationController
-  //       .hasPermission();
-  //   if (permissionGranted == PermissionStatus.denied) {
-  //     permissionGranted = await _locationController.requestPermission();
-  //     if (permissionGranted != PermissionStatus.granted) return;
-  //   }
-  //   LocationData _currentPosition = await _locationController.getLocation();
-  //   _currentP = LatLng(_currentPosition.latitude!, _currentPosition.longitude!);
-  //   _locationSubscription = _locationController.onLocationChanged.listen((
-  //     LocationData currentLocation,
-  //   )  {
-  //     _mapController?.animateCamera(
-  //       CameraUpdate.newCameraPosition(
-  //         CameraPosition(
-  //           target: LatLng(
-  //             currentLocation.latitude!,
-  //             currentLocation.longitude!,
-  //           ),
-  //           zoom: 16.0,
-  //         ),
-  //       ),
-  //     );
-  //     _mapController?.showMarkerInfoWindow(
-  //       MarkerId(sourcePosition!.markerId.value),
-  //     );
-  //     _currentP = LatLng(currentLocation.latitude!, currentLocation.longitude!);
-  //     // addMarker();
+      final origin = _currentP!;
+      final destination = dst;
 
-  //     sourcePosition = Marker(
-  //       markerId: MarkerId(_currentP.toString()),
-  //       position: LatLng(currentLocation.latitude!, currentLocation.longitude!),
-  //       icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueCyan),
-  //       infoWindow: InfoWindow(
-  //         title:
-  //             "Distance: ${getDistance(LatLng(_destinationP.latitude, _destinationP.longitude))}",
-  //       ),
-  //     );
-  //     // getDirections(LatLng(_destinationP.latitude, _destinationP.longitude));
-  //     notifyListeners();
-  //   });
-  //   await getDirections(LatLng(_destinationP.latitude, _destinationP.longitude));
-  //   notifyListeners();
-  // }
+      final polylinePoints = PolylinePoints(
+        apiKey: dotenv.env['GOOGLE_MAPS_API_KEY']!,
+      );
+
+      final result = await polylinePoints.getRouteBetweenCoordinates(
+        request: PolylineRequest(
+          origin: PointLatLng(origin.latitude, origin.longitude),
+          destination: PointLatLng(destination.latitude, destination.longitude),
+
+          // arrivalTime: DateTime.now().millisecondsSinceEpoch,
+          mode: TravelMode.driving,
+        ),
+      );
+      // print("HI");
+      if (result.points.isNotEmpty) {
+        final List<LatLng> polylineCoordinates = result.points
+            .map((point) => LatLng(point.latitude, point.longitude))
+            .toList();
+        // List<LatLng> polylineCoordinates = [
+        //   LatLng(28.4556545, 77.0453846),
+        //   LatLng(28.457069, 77.0467425),
+        //   LatLng(28.4588032, 77.0480546),
+        //   LatLng(28.4601935, 77.0493957),
+        //   LatLng(28.4613966, 77.0505517),
+        //   LatLng(28.4621721, 77.0512426),
+        //   LatLng(28.4624519, 77.0515201),
+        //   LatLng(28.4652525, 77.0542935),
+        //   LatLng(28.466951, 77.0556489),
+        //   LatLng(28.4678528, 77.0562961),
+        //   LatLng(28.4688056, 77.0572826),
+        //   LatLng(28.4679847, 77.0570698),
+        //   LatLng(28.4651349, 77.0549357),
+        //   LatLng(28.461291, 77.0512648),
+        //   LatLng(28.4605629, 77.0505601),
+        //   LatLng(28.4603835, 77.0503867),
+        //   LatLng(28.4602685, 77.0502706),
+        //   LatLng(28.4596605, 77.0501843),
+        //   LatLng(28.4574251, 77.0526913),
+        //   LatLng(28.4570758, 77.0532523),
+        //   LatLng(28.4558367, 77.0559917),
+        //   LatLng(28.4553479, 77.0566226),
+        //   LatLng(28.4553251, 77.056652),
+        //   LatLng(28.4543087, 77.0580256),
+        //   LatLng(28.4522801, 77.0607981),
+        //   LatLng(28.4502381, 77.063531),
+        //   LatLng(28.450273, 77.0641939),
+        //   LatLng(28.4524901, 77.0663441),
+        //   LatLng(28.4525408, 77.0663916),
+        //   LatLng(28.4524511, 77.0665035),
+        //   LatLng(28.4521467, 77.0668909),
+        //   LatLng(28.4517572, 77.0674019),
+        //   LatLng(28.4502022, 77.0694702),
+        //   LatLng(28.4501646, 77.0694334),
+        //   LatLng(28.4520059, 77.0669857),
+        //   LatLng(28.4520165, 77.0666582),
+        //   LatLng(28.4520233, 77.0665073),
+        //   LatLng(28.4516402, 77.0661221),
+        // ];
+
+        PolylineId id = PolylineId("route");
+        Polyline polyline = Polyline(
+          polylineId: id,
+          color: Colors.blue,
+          width: 5,
+          points: polylineCoordinates,
+        );
+
+        polylines[id] = polyline;
+
+        // Add markers
+        // print("polylines, $polylineCoordinates");
+        // addMarker();
+        _markers.add(
+          destinationPosition = Marker(
+            markerId: MarkerId('destination'),
+            position: LatLng(_destinationP!.latitude, _destinationP!.longitude),
+            icon: BitmapDescriptor.defaultMarkerWithHue(
+              BitmapDescriptor.hueAzure,
+            ),
+          ),
+        );
+        _mapController!.animateCamera(
+          CameraUpdate.newCameraPosition(
+            CameraPosition(
+              target: LatLng(
+                (_destinationP!.latitude + _currentP!.latitude) / 2,
+                (_destinationP!.longitude + _currentP!.longitude) / 2,
+              ),
+              zoom: 10,
+            ),
+          ),
+        );
+        _showCancelRoute = true;
+        notifyListeners();
+      } else {
+        print("No route found: ${result.errorMessage}");
+      }
+    } catch (e) {
+      print("Error: $e");
+    }
+  }
+
   getNavigation() async {
+    _showCancelRoute = false;
     _locationController.changeSettings(accuracy: LocationAccuracy.high);
 
     // Step 1: Ensure location service is enabled
@@ -547,14 +652,21 @@ class MapProvider extends ChangeNotifier {
     _locationSubscription?.cancel();
     _locationSubscription = null;
 
-    // 2. Clear route and markers (optional, if you want map empty)
     polylines.clear();
     _markers.clear();
     sourcePosition = null;
     destinationPosition = null;
+    _showCancelRoute = false;
 
-    // 3. Reset state
-    // _currentP = null;
+    notifyListeners();
+  }
+
+  void deletePoints() {
+    polylines.clear();
+    _markers.clear();
+    sourcePosition = null;
+    destinationPosition = null;
+    _showCancelRoute = false;
 
     notifyListeners();
   }
@@ -581,9 +693,8 @@ class MapProvider extends ChangeNotifier {
   void onSearchChanged(String value) async {
     if (value.isNotEmpty) {
       final result = _places.findAutocompletePredictions(value);
-      // _places.fetchPlace(placeId, fields:);
       _predictionsResponse = extractPredictions(await result);
-      print("Predictions: $_predictionsResponse");
+      // print("Predictions: $_predictionsResponse");
       notifyListeners();
     }
   }
