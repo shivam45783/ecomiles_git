@@ -1,6 +1,6 @@
-# 🌍 EcoRoute – Smart Route Optimization App  
+# 🌍 EcoMiles – Smart Route Optimization App  
 
-EcoRoute is a Flutter-based navigation app built for hackathons that helps users **choose routes based on time or environmental impact**.  
+EcoMiles is a Flutter-based navigation app that helps users **choose routes based on time or environmental impact**.  
 It integrates with **Google Maps APIs** for real-time routing and introduces a unique **Eco Mode** that optimizes for pollution reduction within **Gurugram** using a custom dataset.  
 
 ---
@@ -28,6 +28,7 @@ It integrates with **Google Maps APIs** for real-time routing and introduces a u
   - **Google Maps SDK & APIs**  
   - Location services (`location` package)  
   - State management with **Provider**  
+  
 
 ---
 
