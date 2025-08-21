@@ -1,5 +1,4 @@
 import 'package:EcoMiles/auth/google_auth.dart';
-// import 'package:EcoMiles/provider/loadingProvider.dart';
 import 'package:EcoMiles/provider/mapProvider.dart';
 import 'package:EcoMiles/theme/theme_provider.dart';
 import 'package:flutter/material.dart';
@@ -54,8 +53,9 @@ class _SettingsOverlayState extends State<SettingsOverlay>
     AppThemeMode appThemeMode = Provider.of<ThemeProvider>(
       context,
     ).appThemeMode;
+    final mapProivder = Provider.of<MapProvider>(context);
     // final screenHeight = MediaQuery.of(context).size.height;
-    final _baseHeight = MediaQuery.of(context).size.height * 0.4;
+    final _baseHeight = MediaQuery.of(context).size.height * 0.5;
     final onClose = Provider.of<SettingsProvider>(context).hide;
     final googleAuth = GoogleAuth(context: context);
     final settingsInstance = Provider.of<SettingsProvider>(context);
@@ -81,8 +81,6 @@ class _SettingsOverlayState extends State<SettingsOverlay>
           controller: _scrollController,
           child: Column(
             children: [
-              SizedBox(height: 10),
-              Icon(Icons.drag_handle, color: Colors.grey),
               SizedBox(height: 10),
               Text(
                 "Settings",
@@ -201,7 +199,11 @@ class _SettingsOverlayState extends State<SettingsOverlay>
 
                                   child: InkWell(
                                     borderRadius: BorderRadius.circular(10),
-                                    onTap: () {},
+                                    onTap: () {
+                                      mapProivder.setOptimisedRoute = true;
+
+                                      mapProivder.notifyListeners();
+                                    },
                                     child: Container(
                                       alignment: Alignment.center,
                                       width:
@@ -220,7 +222,11 @@ class _SettingsOverlayState extends State<SettingsOverlay>
                                         children: [
                                           Icon(
                                             Icons.eco,
-                                            color: widget.isDark
+                                            color:
+                                                mapProivder.optimisedRoute ==
+                                                    true
+                                                ? Colors.purpleAccent
+                                                : widget.isDark
                                                 ? Colors.white
                                                 : Colors.black87,
                                             size: 25,
@@ -229,7 +235,11 @@ class _SettingsOverlayState extends State<SettingsOverlay>
                                           Text(
                                             "Eco",
                                             style: TextStyle(
-                                              color: widget.isDark
+                                              color:
+                                                  mapProivder.optimisedRoute ==
+                                                      true
+                                                  ? Colors.purpleAccent
+                                                  : widget.isDark
                                                   ? Colors.white
                                                   : Colors.black87,
                                               fontSize: 12,
@@ -246,7 +256,10 @@ class _SettingsOverlayState extends State<SettingsOverlay>
 
                                   child: InkWell(
                                     borderRadius: BorderRadius.circular(10),
-                                    onTap: () {},
+                                    onTap: () {
+                                      mapProivder.setOptimisedRoute = false;
+                                      mapProivder.notifyListeners();
+                                    },
                                     child: Container(
                                       alignment: Alignment.center,
                                       width:
@@ -265,7 +278,11 @@ class _SettingsOverlayState extends State<SettingsOverlay>
                                         children: [
                                           Icon(
                                             Icons.timer,
-                                            color: widget.isDark
+                                            color:
+                                                mapProivder.optimisedRoute ==
+                                                    false
+                                                ? Colors.purpleAccent
+                                                : widget.isDark
                                                 ? Colors.white
                                                 : Colors.black87,
                                             size: 25,
@@ -274,7 +291,11 @@ class _SettingsOverlayState extends State<SettingsOverlay>
                                           Text(
                                             "Time",
                                             style: TextStyle(
-                                              color: widget.isDark
+                                              color:
+                                                  mapProivder.optimisedRoute ==
+                                                      false
+                                                  ? Colors.purpleAccent
+                                                  : widget.isDark
                                                   ? Colors.white
                                                   : Colors.black87,
                                               fontSize: 12,
@@ -595,7 +616,7 @@ class _SettingsOverlayState extends State<SettingsOverlay>
                                       Provider.of<MapProvider>(
                                         context,
                                         listen: false,
-                                      ).setMapStyles(MapType.satellite);
+                                      ).setMapStyles(MapType.hybrid);
                                     },
                                     child: Container(
                                       width:
@@ -617,7 +638,7 @@ class _SettingsOverlayState extends State<SettingsOverlay>
                                                       context,
                                                       listen: false,
                                                     ).mapType ==
-                                                    MapType.satellite
+                                                    MapType.hybrid
                                                 ? Colors.purpleAccent
                                                 : widget.isDark
                                                 ? Colors.white
@@ -633,7 +654,7 @@ class _SettingsOverlayState extends State<SettingsOverlay>
                                                         context,
                                                         listen: false,
                                                       ).mapType ==
-                                                      MapType.satellite
+                                                      MapType.hybrid
                                                   ? Colors.purpleAccent
                                                   : widget.isDark
                                                   ? Colors.white

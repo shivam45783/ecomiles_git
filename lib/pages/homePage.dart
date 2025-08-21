@@ -1,19 +1,13 @@
-// import 'package:EcoMiles/auth/google_auth.dart';
-// import 'package:EcoMiles/auth/logout.dart';
 import 'package:EcoMiles/components/settingOverlay.dart';
-// import 'package:EcoMiles/components/splashButton.dart';
+import 'package:EcoMiles/database/database.dart';
 import 'package:EcoMiles/pages/mapPage.dart';
 import 'package:EcoMiles/provider/mapProvider.dart';
 import 'package:EcoMiles/provider/settingsProvider.dart';
 import 'package:flutter/material.dart';
 import 'package:EcoMiles/components/loadingOverlay.dart';
-// import 'package:EcoMiles/theme/theme_provider.dart';
+import 'package:hive/hive.dart';
 import 'package:provider/provider.dart';
 import 'package:EcoMiles/provider/loadingProvider.dart';
-// import 'package:EcoMiles/pages/mapPage.dart';
-// import 'package:google_maps_flutter/google_maps_flutter.dart';
-// import 'package:location/location.dart';
-// import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {
   final String? showLoginMessage;
@@ -27,7 +21,12 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    // Provider.of<LoadingProvider>(context, listen: false).hide();
+    final box = Hive.box('database');
+    final Database database = Database();
+    if (box.get('data') == null) {
+      database.createData();
+    }
+
     if (widget.showLoginMessage != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         ScaffoldMessenger.of(
@@ -40,11 +39,12 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    //  final mapPage = MapPage(isDark: isDark);
     final mapProvider = Provider.of<MapProvider>(context);
     LoadingProvider loadingInstance = Provider.of<LoadingProvider>(context);
     SettingsProvider settingsInstance = Provider.of<SettingsProvider>(context);
-    // final googleAuth = GoogleAuth(context: context);
+    showSnackBar(String message) => ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
 
     return Scaffold(
       extendBodyBehindAppBar: true,
@@ -52,6 +52,7 @@ class _HomePageState extends State<HomePage> {
           ? null
           : loadingInstance.isLoading == false
           ? FloatingActionButton(
+              heroTag: null,
               onPressed: () {
                 // mapPage.getCurrentLocation();
                 mapProvider.getCurrentLocation();
@@ -65,36 +66,7 @@ class _HomePageState extends State<HomePage> {
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 15),
-            child: Row(
-              children: [
-                // GestureDetector(
-                //   onTap: () => settingsInstance.show(),
-                //   child: Icon(
-                //     Icons.settings_rounded,
-                //     color: isDark ? Colors.white : Colors.black87,
-                //   ),
-                // ),
-                const SizedBox(width: 10),
-
-                // GestureDetector(
-                //   onTap: () => Provider.of<ThemeProvider>(
-                //     context,
-                //     listen: false,
-                //   ).toggleTheme(),
-
-                //   child: Icon(
-                //     Provider.of<ThemeProvider>(context).appThemeMode ==
-                //             AppThemeMode.system
-                //         ? Icons.computer_rounded
-                //         : Provider.of<ThemeProvider>(context).appThemeMode ==
-                //               AppThemeMode.light
-                //         ? Icons.light_mode_rounded
-                //         : Icons.dark_mode_rounded,
-                //     color: isDark ? Colors.white : Colors.black87,
-                //   ),
-                // ),
-              ],
-            ),
+            child: Row(children: [const SizedBox(width: 10)]),
           ),
         ],
 
@@ -215,8 +187,31 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ),
                     ),
-
                     const SizedBox(height: 10),
+                    GestureDetector(
+                      onTap: () => {Navigator.pushNamed(context, '/route')},
+
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: isDark ? Colors.black87 : Colors.white,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black26,
+                              blurRadius: 4,
+                              offset: Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        padding: EdgeInsets.all(10),
+                        child: Icon(
+                          Icons.directions_rounded,
+                          color: isDark ? Colors.white : Colors.black87,
+                        ),
+                      ),
+                    ),
+                    if (mapProvider.destinationLocation != null)
+                      const SizedBox(height: 10),
                     if (mapProvider.destinationLocation != null)
                       GestureDetector(
                         onTap: () async {
@@ -254,56 +249,13 @@ class _HomePageState extends State<HomePage> {
                           ),
                           padding: EdgeInsets.all(10),
                           child: Icon(
-                            Icons.directions_rounded,
+                            Icons.navigation_outlined,
                             color: isDark ? Colors.white : Colors.black87,
                           ),
                         ),
                       ),
-                    const SizedBox(height: 10),
-                    if (mapProvider.destinationLocation != null)
-                      GestureDetector(
-                        onTap: () async {
-                          if (mapProvider.destinationLocation == null) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text('Please select a destination.'),
-                              ),
-                            );
-                            return;
-                          }
-                          loadingInstance.show();
-                          try {
-                            // await mapProvider.getNavigation();
-                            mapProvider.getDirections(
-                              mapProvider.destinationLocation!,
-                            );
-                          } catch (e) {
-                            print("Navigation error: $e");
-                          } finally {
-                            loadingInstance.hide();
-                          }
-                        },
-
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: isDark ? Colors.black87 : Colors.white,
-                            shape: BoxShape.circle,
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black26,
-                                blurRadius: 4,
-                                offset: Offset(0, 2),
-                              ),
-                            ],
-                          ),
-                          padding: EdgeInsets.all(10),
-                          child: Icon(
-                            Icons.route_rounded,
-                            color: isDark ? Colors.white : Colors.black87,
-                          ),
-                        ),
-                      ),
-                    const SizedBox(height: 10),
+                    if (mapProvider.locationSubscription?.isPaused == false)
+                      const SizedBox(height: 10),
                     if (mapProvider.locationSubscription?.isPaused == false)
                       GestureDetector(
                         onTap: () async {
@@ -330,6 +282,29 @@ class _HomePageState extends State<HomePage> {
                           ),
                         ),
                       ),
+                    const SizedBox(height: 10),
+                    GestureDetector(
+                      onTap: () => Navigator.pushNamed(context, "modeInfo"),
+
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: isDark ? Colors.black87 : Colors.white,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black26,
+                              blurRadius: 4,
+                              offset: Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        padding: EdgeInsets.all(10),
+                        child: Icon(
+                          Icons.info_outline_rounded,
+                          color: isDark ? Colors.white : Colors.black87,
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -375,6 +350,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
               ),
+
             Positioned(
               top: 105,
               left: 15,
@@ -401,6 +377,7 @@ class _HomePageState extends State<HomePage> {
                       ),
                       child: ListView.separated(
                         shrinkWrap: true,
+                        padding: const EdgeInsets.all(0),
                         itemCount: mapProvider.predictionsResponse.length,
                         separatorBuilder: (context, index) => Divider(
                           height: 0.1,
@@ -411,10 +388,19 @@ class _HomePageState extends State<HomePage> {
                           return Material(
                             color: Colors.transparent,
                             child: InkWell(
-                              onTap: () {
+                              onTap: () async {
                                 // Handle selection
+
                                 loadingInstance.show();
-                                mapProvider.selectPlace(place['primaryText']);
+                                mapProvider.notifyListeners();
+                                bool isInside = await mapProvider.selectPlace(
+                                  place['placeId'] ?? '',
+                                );
+                                if (!isInside && mapProvider.optimisedRoute) {
+                                  showSnackBar(
+                                    "Current location or destination is outside Gurugram",
+                                  );
+                                }
                                 mapProvider.searchController!.clear();
                                 mapProvider.predictionsResponse.clear();
                                 mapProvider.notifyListeners();

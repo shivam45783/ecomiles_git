@@ -22,19 +22,19 @@ class _GetStartedPageState extends State<GetStartedPage> {
   @override
   Widget build(BuildContext context) {
     final googleAuth = GoogleAuth(context: context);
-    final appleAuth = AppleAuth(context: context);
+    // final appleAuth = AppleAuth(context: context);
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final themeData = Theme.of(context);
+    // final themeData = Theme.of(context);
     LoadingProvider loadingInstance = Provider.of<LoadingProvider>(context);
-    void _simulateLoading() async {
-      // Provider.of<LoadingProvider>(context, listen: false).show();
-      loadingInstance.show();
+    // void _simulateLoading() async {
+    //   // Provider.of<LoadingProvider>(context, listen: false).show();
+    //   loadingInstance.show();
 
-      // Simulate a delay
-      await Future.delayed(const Duration(seconds: 3));
+    //   // Simulate a delay
+    //   await Future.delayed(const Duration(seconds: 3));
 
-      loadingInstance.hide();
-    }
+    //   loadingInstance.hide();
+    // }
 
     return Scaffold(
       extendBodyBehindAppBar: true,
@@ -205,53 +205,8 @@ class _GetStartedPageState extends State<GetStartedPage> {
                               });
                             }
                           });
-                          // if (user != null) {
-                          //   Navigator.pushAndRemoveUntil(
-                          //     context,
-                          //     MaterialPageRoute(
-                          //       builder: (context) => HomePage(
-                          //         showLoginMessage:
-                          //             'Signed in with Google as ${user!.displayName}',
-                          //       ),
-                          //     ),
-                          //     (route) => false,
-                          //   );
-                          // Navigator.pushReplacement(
-                          //   context,
-                          //   MaterialPageRoute(
-                          //     builder: (context) => HomePage(
-                          //       showLoginMessage:
-                          //           'Signed in with Google as ${user!.displayName}',
-                          //     ),
-                          //   ),
-                          // );
-                          // }
                         },
-                        // onTap: () async {
-                        //   loadingInstance.show();
 
-                        //   WidgetsBinding.instance.addPostFrameCallback((
-                        //     _,
-                        //   ) async {
-                        //     final user = await googleAuth.signInWithGoogle();
-
-                        //     if (!mounted) return;
-
-                        //     if (user != null) {
-                        //       Navigator.pushReplacement(
-                        //         context,
-                        //         MaterialPageRoute(
-                        //           builder: (context) => HomePage(
-                        //             showLoginMessage:
-                        //                 'Signed in with Google as ${user.displayName}',
-                        //           ),
-                        //         ),
-                        //       );
-                        //     }
-
-                        //     // Don't hide loading here, let HomePage handle it
-                        //   });
-                        // },
                         child: Row(
                           children: [
                             Image(
@@ -274,57 +229,93 @@ class _GetStartedPageState extends State<GetStartedPage> {
                       ),
                     ),
 
+                    // SizedBox(height: MediaQuery.of(context).size.height * 0.03),
+                    // Padding(
+                    //   padding: const EdgeInsets.only(
+                    //     left: 50,
+                    //     right: 50,
+                    //     // bottom: 10,
+                    //     top: 5,
+                    //   ),
+
+                    //   child: SplashButton(
+                    //     isDark: isDark,
+                    //     onTap: () {
+                    //       Navigator.pushNamed(context, "modeInfo");
+                    //     },
+
+                    //     child: Row(
+                    //       children: [
+                    //         Image(
+                    //           image: AssetImage(
+                    //             'assets/images/google_icon.png',
+                    //           ),
+                    //           width: 34,
+                    //         ),
+                    //         const SizedBox(width: 10),
+                    //         Text(
+                    //           "Mode Info",
+                    //           style: TextStyle(
+                    //             fontSize: 16,
+                    //             fontWeight: FontWeight.bold,
+                    //             color: isDark ? Colors.white : Colors.black87,
+                    //           ),
+                    //         ),
+                    //       ],
+                    //     ),
+                    //   ),
+                    // ),
                     SizedBox(height: MediaQuery.of(context).size.height * 0.03),
-                    Padding(
-                      padding: const EdgeInsets.only(
-                        left: 50,
-                        right: 50,
-                        // bottom: 10,
-                        top: 5,
-                      ),
+                    // Padding(
+                    //   padding: const EdgeInsets.only(
+                    //     left: 50,
+                    //     right: 50,
+                    //     // bottom: 10,
+                    //     top: 5,
+                    //   ),
 
-                      child: SplashButton(
-                        isDark: isDark,
-                        onTap: () async {
-                          final user = await appleAuth.signInWithApple();
-                          print("user: $user");
-                          if (user != null) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  'Signed in with Apple as ${user.displayName}',
-                                ),
-                              ),
-                            );
-                            Navigator.pushAndRemoveUntil(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const HomePage(),
-                              ),
-                              (route) => false,
-                            );
-                          }
-                        },
+                    //   child: SplashButton(
+                    //     isDark: isDark,
+                    //     onTap: () async {
+                    //       final user = await appleAuth.signInWithApple();
+                    //       print("user: $user");
+                    //       if (user != null) {
+                    //         ScaffoldMessenger.of(context).showSnackBar(
+                    //           SnackBar(
+                    //             content: Text(
+                    //               'Signed in with Apple as ${user.displayName}',
+                    //             ),
+                    //           ),
+                    //         );
+                    //         Navigator.pushAndRemoveUntil(
+                    //           context,
+                    //           MaterialPageRoute(
+                    //             builder: (context) => const HomePage(),
+                    //           ),
+                    //           (route) => false,
+                    //         );
+                    //       }
+                    //     },
 
-                        child: Row(
-                          children: [
-                            Image(
-                              image: AssetImage('assets/images/apple_icon.png'),
-                              width: 34,
-                            ),
-                            const SizedBox(width: 10),
-                            Text(
-                              "Continue with Apple",
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: isDark ? Colors.white : Colors.black87,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
+                    //     child: Row(
+                    //       children: [
+                    //         Image(
+                    //           image: AssetImage('assets/images/apple_icon.png'),
+                    //           width: 34,
+                    //         ),
+                    //         const SizedBox(width: 10),
+                    //         Text(
+                    //           "Continue with Apple",
+                    //           style: TextStyle(
+                    //             fontSize: 16,
+                    //             fontWeight: FontWeight.bold,
+                    //             color: isDark ? Colors.white : Colors.black87,
+                    //           ),
+                    //         ),
+                    //       ],
+                    //     ),
+                    //   ),
+                    // ),
                   ],
                 ),
 
