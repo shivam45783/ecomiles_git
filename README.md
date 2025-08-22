@@ -1,5 +1,5 @@
 # 🌍 EcoMiles – Smart Route Optimization App  
-**Find the apk file in the current directory**
+**Please download the EcoMiles.apk file to install and test the app.**
 
 
 EcoMiles is a Flutter-based navigation app that helps users **choose routes based on time or environmental impact**.  
