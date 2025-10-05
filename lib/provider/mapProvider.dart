@@ -711,7 +711,7 @@ class MapProvider extends ChangeNotifier {
       print("BACKEND_URL: ${await dotenv.env['BACKEND_URL']}");
       print(dotenv.env);
 
-      final url = Uri.parse("http://34.131.76.145/api/get-route");
+      final url = Uri.parse("http://34.30.56.121/api/get-route");
       // final url = Uri.parse("http://10.196.46.194:5050/api/get-route");
       print("url: ${url}");
       Map<String, dynamic> data = {

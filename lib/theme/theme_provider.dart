@@ -1,7 +1,7 @@
 import 'package:EcoMiles/database/database.dart';
 import 'package:flutter/material.dart';
 import 'package:EcoMiles/theme/theme.dart';
-import 'package:hive_flutter/adapters.dart';
+// import 'package:hive_flutter/adapters.dart';
 
 enum AppThemeMode { system, light, dark }
 
